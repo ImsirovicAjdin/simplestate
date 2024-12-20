@@ -4,10 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple State v006</title>
+    <link rel="stylesheet" href="./style.css">
 </head>
 <body>
     <!-- Counter Component -->
     <div class="counter">
+        <h2>Persistence Example (Counter value stays the same after refresh)</h2>
         <div id="counter">0</div>
         <button id="increment">+</button>
         <button id="decrement">-</button>
@@ -15,13 +17,14 @@
 
     <!-- Name Inputs -->
     <div class="input">
+        <h2>Computed State Example (Full name is computed from first and last name)</h2>
         <input id="firstNameInput" type="text" placeholder="Enter name">
         <input id="lastNameInput" type="text" placeholder="Enter last name">
         <div id="fullNameDisplay"></div>
     </div>
 
     <script type="module">
-        import { setState, bindElement, persistState } from './SimpleState-v006.js';
+        import { setState, bindElement, persistState, computeState } from './SimpleState-v006.js';
 
         // Track cleanups
         const cleanups = new Set();
@@ -100,6 +103,15 @@
         setState('count', 0);
         setState('firstName', '');
         setState('lastName', '');
+
+        // Set up computed state
+        trackCleanup(
+            computeState(
+                'fullName',
+                ['firstName', 'lastName'],
+                (first, last) => `${first || ''} ${last || ''}`.trim()
+            )
+        );
 
         // Set up persistence
         trackCleanup(persistState('count'));
