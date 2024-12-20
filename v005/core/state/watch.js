@@ -10,4 +10,7 @@ export const watch = (key, callback) => {
         attributes: true,
         attributeFilter: ['style']
     });
+
+    // Return cleanup function
+    return () => observer.disconnect();
 };
