@@ -1,6 +1,5 @@
 // core/persistence/persistState.js
 import { watch } from '../state/watch.js';
-import { getState } from '../state/getState.js';
 import { setState } from '../state/setState.js';
 
 export const persistState = (key, options = {}) => {

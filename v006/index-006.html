@@ -118,9 +118,15 @@
         trackCleanup(persistState('firstName', { enabled: false }));
         trackCleanup(persistState('lastName', { enabled: false }));
 
-        // Clean up when page unloads
-        window.addEventListener('unload', () => {
-            cleanups.forEach(cleanup => cleanup());
+        // Clean up before page unloads
+        window.addEventListener('beforeunload', (event) => {
+            cleanups.forEach(cleanup => {
+                try {
+                    cleanup();
+                } catch (error) {
+                    console.error('Cleanup error:', error);
+                }
+            });
             cleanups.clear();
         });
     </script>
