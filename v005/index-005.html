@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple State v005</title>
+</head>
+<body>
+    <!-- Counter Component -->
+    <div class="counter">
+        <div id="counter">0</div>
+        <button id="increment">+</button>
+        <button id="decrement">-</button>
+    </div>
+
+    <!-- Input Component -->
+    <div class="input">
+        <input id="nameInput" type="text" placeholder="Enter name">
+        <div id="nameDisplay"></div>
+    </div>
+
+    <script type="module">
+        import { setState, bindElement } from './SimpleState-v005.js';
+
+        // Track cleanups
+        const cleanups = new Set();
+
+        // Helper to track cleanup functions
+        const trackCleanup = (cleanup) => {
+            cleanups.add(cleanup);
+            return cleanup;
+        };
+
+        // Set up counter display
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('counter'),
+                stateKey: 'count',
+                display: (el, value) => el.textContent = value
+            })
+        );
+
+        // Set up increment button
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('increment'),
+                stateKey: 'count',
+                events: {
+                    click: (_, value = 0) => value + 1
+                }
+            })
+        );
+
+        // Set up decrement button
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('decrement'),
+                stateKey: 'count',
+                events: {
+                    click: (_, value = 0) => value - 1
+                }
+            })
+        );
+
+        // Set up input field
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('nameInput'),
+                stateKey: 'name',
+                events: {
+                    input: (e) => e.target.value
+                },
+                display: (el, value) => el.value = value || ''
+            })
+        );
+
+        // Set up name display
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('nameDisplay'),
+                stateKey: 'name',
+                display: (el, value) => el.textContent = value || ''
+            })
+        );
+
+        // Initialize states
+        setState('count', 0);
+        setState('name', '');
+
+        // Clean up when page unloads
+        window.addEventListener('unload', () => {
+            cleanups.forEach(cleanup => cleanup());
+            cleanups.clear();
+        });
+    </script>
+</body>
+</html>
