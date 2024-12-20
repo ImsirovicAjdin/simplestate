@@ -20,7 +20,7 @@
     </div>
 
     <script type="module">
-        import { setState, bindElement } from './SimpleState-v005.js';
+        import { setState, bindElement, persistState } from './SimpleState-v005.js';
 
         // Track cleanups
         const cleanups = new Set();
@@ -86,6 +86,10 @@
         // Initialize states
         setState('count', 0);
         setState('name', '');
+
+        // Set up persistence
+        trackCleanup(persistState('count'));
+        trackCleanup(persistState('name', { enabled: false })); // Example of disabling persistence
 
         // Clean up when page unloads
         window.addEventListener('unload', () => {
