@@ -70,23 +70,53 @@ input {
     margin: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
-.inheritance-test .parent {
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] .parent {
+    background: #333;
+    color: #fff;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] .child {
+    background: #444;
+    color: #fff;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] .grandchild {
+    background: #555;
+    color: #fff;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"light\""] .parent {
     background: #f8f8f8;
+    color: #000;
 }
 
-.inheritance-test .child {
+.state-partition-theme[style*="--state-theme-theme: \"light\""] .child {
     background: #f0f0f0;
+    color: #000;
 }
 
-.inheritance-test .grandchild {
+.state-partition-theme[style*="--state-theme-theme: \"light\""] .grandchild {
     background: #e8e8e8;
+    color: #000;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] #parentTheme,
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] #childTheme,
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] #grandchildTheme {
+    color: #66ccff;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"light\""] #parentTheme,
+.state-partition-theme[style*="--state-theme-theme: \"light\""] #childTheme,
+.state-partition-theme[style*="--state-theme-theme: \"light\""] #grandchildTheme {
+    color: #0066cc;
 }
 
 #parentTheme,
 #childTheme,
 #grandchildTheme {
     font-weight: bold;
-    color: #0066cc;
 }

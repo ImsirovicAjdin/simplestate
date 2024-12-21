@@ -27,7 +27,7 @@
                 </div>
             </div>
         </div>
-        <button id="toggleTheme">Toggle Theme</button>
+        <button id="toggleTheme">Toggle Theme: <span id="toggleThemeValue"></span></button>
     </div>
 
     <!-- Name Inputs -->
@@ -92,54 +92,68 @@
             })
         );
 
-// Set up theme inheritance test
-setState('theme', 'light', { scope: 'theme', target: themeContainer });
+        // Set up theme inheritance test
+        // Moved to after bindings
 
-// Parent theme display
-trackCleanup(
-    bindElement({
-        element: document.getElementById('parentTheme'),
-        stateKey: 'theme',
-        scope: 'theme',
-        target: document.querySelector('.parent'),
-        display: (el, value) => el.textContent = value
-    })
-);
+        // Parent theme display
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('parentTheme'),
+                stateKey: 'theme',
+                scope: 'theme',
+                target: document.querySelector('.parent'),
+                display: (el, value) => el.textContent = value
+            })
+        );
 
-// Child theme display (inherits from parent)
-trackCleanup(
-    bindElement({
-        element: document.getElementById('childTheme'),
-        stateKey: 'theme',
-        scope: 'theme',
-        target: document.querySelector('.child'),
-        display: (el, value) => el.textContent = value
-    })
-);
+        // Child theme display (inherits from parent)
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('childTheme'),
+                stateKey: 'theme',
+                scope: 'theme',
+                target: document.querySelector('.child'),
+                display: (el, value) => el.textContent = value
+            })
+        );
 
-// Grandchild theme display (inherits from parent)
-trackCleanup(
-    bindElement({
-        element: document.getElementById('grandchildTheme'),
-        stateKey: 'theme',
-        scope: 'theme',
-        target: document.querySelector('.grandchild'),
-        display: (el, value) => el.textContent = value
-    })
-);
+        // Grandchild theme display (inherits from parent)
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('grandchildTheme'),
+                stateKey: 'theme',
+                scope: 'theme',
+                target: document.querySelector('.grandchild'),
+                display: (el, value) => el.textContent = value
+            })
+        );
 
-// Theme toggle button
-trackCleanup(
-    bindElement({
-        element: document.getElementById('toggleTheme'),
-        stateKey: 'theme',
-        scope: 'theme',
-        target: themeContainer,
-        events: {
-            click: (_, value) => value === 'light' ? 'dark' : 'light'
-        }
-    })
-);
+        // Toggle theme value display
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('toggleThemeValue'),
+                stateKey: 'theme',
+                scope: 'theme',
+                target: themeContainer,
+                display: (el, value) => el.textContent = value
+            })
+        );
+
+        // Theme toggle button
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('toggleTheme'),
+                stateKey: 'theme',
+                scope: 'theme',
+                target: themeContainer,
+                events: {
+                    click: (_, value) => value === 'light' ? 'dark' : 'light'
+                }
+            })
+        );
+
+        // Set up theme inheritance test (moved to after bindings)
+        setState('theme', 'light', { scope: 'theme', target: themeContainer });
 
         // Set up first name input
         trackCleanup(

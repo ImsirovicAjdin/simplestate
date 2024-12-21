@@ -143,3 +143,56 @@ This is actually a strength, not scope creep. The novel paradigm I'm using (CSS 
 * State compression techniques
 
 The success of this approach suggests we might need to rethink how we approach front-end state management. Instead of fighting against or reimplementing browser features, we should look for ways to leverage existing platform capabilities in novel ways.
+
+# Version 0.0.8 Release Notes
+
+## Major Features: State Inheritance & Demo Components
+
+This release validates the framework's DOM-based state inheritance approach through three comprehensive demo components:
+
+### 1. Theme Inheritance Demo
+- Implemented parent/child/grandchild state inheritance
+- Demonstrated automatic state propagation through DOM hierarchy
+- Added visual feedback through CSS custom properties
+- Implemented smooth theme transitions
+- Real-time theme value display in UI
+
+### 2. Counter with Persistence
+- Demonstrated state persistence across page refreshes
+- Implemented increment/decrement operations
+- Showed clean integration with DOM updates
+- Validated state scoping with partition containers
+
+### 3. Computed State Example
+- Implemented real-time computed state from multiple inputs
+- Demonstrated first/last name synchronization
+- Showed clean handling of derived state
+- Validated state dependencies management
+
+## Technical Achievements
+
+1. **Zero-Cost Inheritance**
+   - Leveraged CSS cascade for state propagation
+   - No runtime overhead for inheritance
+   - Automatic cleanup through DOM
+
+2. **CSS Integration**
+   - Seamless theme switching through custom properties
+   - Smooth transitions between states
+   - Native browser optimization
+
+3. **State Partitioning**
+   - Clean separation between component states
+   - Scoped updates for better performance
+   - Isolated state management
+
+## Size & Performance
+- Maintained minimal footprint (~2-3KB minified)
+- Zero external dependencies
+- Leveraged native browser features
+
+## Future Directions
+- Shadow DOM integration potential
+- State machine patterns
+- Cross-component orchestration
+- Performance optimizations
