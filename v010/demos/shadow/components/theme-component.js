@@ -5,199 +5,274 @@ class ThemeComponent extends HTMLElement {
         super();
         this.attachShadow({ mode: 'open' });
         
-        // Create template
         const template = document.createElement('template');
         template.innerHTML = `
             <style>
                 .theme-container {
-                    padding: 1rem;
+                    padding: 1.5rem;
                     transition: all 0.3s ease;
+                    contain: style layout;
+                    border-radius: 8px;
                 }
+                
+                /* Theme styles */
+                [data-state="light"] {
+                    background: white;
+                    color: black;
+                    border: 1px solid #eee;
+                }
+                [data-state="dark"] {
+                    background: #333;
+                    color: white;
+                    border: 1px solid #555;
+                }
+
+                /* Controls styling */
                 .theme-controls {
                     margin-top: 1rem;
                     padding-top: 1rem;
-                    border-top: 1px solid #eee;
+                    border-top: 1px solid;
+                    border-color: inherit;
                 }
+
                 button {
                     padding: 0.5rem 1rem;
+                    margin-right: 0.5rem;
                     border: none;
                     border-radius: 4px;
+                    font-size: 0.9rem;
                     cursor: pointer;
-                    margin-right: 0.5rem;
+                    transition: all 0.2s ease;
                 }
-                .reset-button {
-                    background: #eee;
-                    display: none;
+
+                button:hover {
+                    opacity: 0.9;
+                    transform: translateY(-1px);
                 }
-                [data-override="true"] .reset-button {
-                    display: inline-block;
+
+                button:active {
+                    transform: translateY(0);
                 }
-                [data-theme="light"] {
-                    background: #fff;
+
+                #themeToggle {
+                    background: #4a90e2;
+                    color: white;
+                }
+
+                [data-state="dark"] #themeToggle {
+                    background: #61dafb;
                     color: #333;
                 }
-                [data-theme="dark"] {
-                    background: #333;
+
+                #resetTheme {
+                    background: #f5f5f5;
+                    color: #333;
+                    border: 1px solid #ddd;
+                }
+
+                [data-state="dark"] #resetTheme {
+                    background: #555;
                     color: #fff;
+                    border-color: #666;
+                }
+
+                /* Status display */
+                .theme-controls > div {
+                    margin-top: 0.75rem;
+                    font-size: 0.9rem;
+                    opacity: 0.8;
+                }
+
+                #themeValue {
+                    font-weight: bold;
+                    color: inherit;
                 }
             </style>
-            <div class="theme-container">
+            <div class="theme-container" data-state-scope>
                 <slot></slot>
                 <div class="theme-controls">
                     <button id="themeToggle">Toggle Theme</button>
-                    <button class="reset-button" id="resetTheme">Reset to Parent</button>
+                    <button id="resetTheme">Reset to Parent</button>
                     <div>Current Theme: <span id="themeValue"></span></div>
                 </div>
             </div>
         `;
         
         this.shadowRoot.appendChild(template.content.cloneNode(true));
-        this._container = this.shadowRoot.querySelector('.theme-container');
+        this._container = this.shadowRoot.querySelector('[data-state-scope]');
+        if (!this._container) {
+            throw new Error('State container not found in template');
+        }
+        
+        // Debug and safety mechanisms
+        this._debugId = this.id || `theme-${Math.random().toString(36).slice(2, 7)}`;
+        this._container.dataset.debugId = this._debugId;
+        this._updateCount = 0;
+        this._lastUpdateTime = 0;
+        this._maxUpdatesPerSecond = 10;
         this._localOverride = false;
     }
 
-    static get observedAttributes() {
-        return ['cross-shadow'];
-    }
-
-    get crossShadow() {
-        return this.hasAttribute('cross-shadow');
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-        if (name === 'cross-shadow' && this.isConnected) {
-            this._updateStateBindings();
-        }
-    }
-
-    _updateDisplay(value) {
-        if (!value) return;
-        
-        const themeValue = this.shadowRoot.querySelector('#themeValue');
-        themeValue.textContent = value;
-        this._container.dataset.theme = value;
-        this._container.dataset.override = this._localOverride;
-        console.log('Display updated in', this.id || 'unnamed', 'to:', value, 'override:', this._localOverride);
-    }
-
-    _findParentThemeContainer() {
-        let parent = this.parentElement;
-        while (parent) {
-            if (parent.tagName.toLowerCase() === 'theme-component') {
-                return parent.shadowRoot.querySelector('.theme-container');
+    _safeUpdate(action) {
+        // Rate limiting
+        const now = Date.now();
+        if (now - this._lastUpdateTime < 1000) {
+            this._updateCount++;
+            if (this._updateCount > this._maxUpdatesPerSecond) {
+                console.warn(`[${this._debugId}] Too many updates, skipping...`);
+                return false;
             }
-            parent = parent.parentElement;
-        }
-        return null;
-    }
-
-    _getLocalOptions() {
-        return {
-            target: this._container,
-            scope: 'theme',
-            crossShadow: false,
-            inherit: false
-        };
-    }
-
-    _getParentOptions() {
-        const parentContainer = this._findParentThemeContainer();
-        return parentContainer ? {
-            target: parentContainer,
-            scope: 'theme',
-            crossShadow: true,
-            inherit: true
-        } : null;
-    }
-
-    _resetToParent() {
-        const parentOptions = this._getParentOptions();
-        const localOptions = this._getLocalOptions();
-        if (parentOptions) {
-            const parentState = getState('theme', parentOptions);
-            if (parentState) {
-                this._localOverride = false;
-                setState('theme', parentState, localOptions);
-                this._updateDisplay(parentState);
-            }
-        }
-    }
-
-    _updateStateBindings() {
-        // Clean up existing bindings
-        if (this._cleanups) {
-            this._cleanups.forEach(cleanup => cleanup());
-            this._cleanups = [];
+        } else {
+            this._updateCount = 1;
+            this._lastUpdateTime = now;
         }
 
-        const cleanups = [];
-        const localOptions = this._getLocalOptions();
-
-        // Initialize local state if needed
-        let currentState = getState('theme', localOptions);
-        if (!currentState) {
-            currentState = 'light';
-            setState('theme', currentState, localOptions);
+        try {
+            action();
+            return true;
+        } catch (error) {
+            console.error(`[${this._debugId}] Update error:`, error);
+            return false;
         }
-
-        // If cross-shadow, watch parent state
-        if (this.crossShadow) {
-            const parentOptions = this._getParentOptions();
-            if (parentOptions) {
-                const watchParentCleanup = watch('theme', (value) => {
-                    if (!this._localOverride) {
-                        console.log('Parent update in', this.id || 'unnamed', 'value:', value);
-                        setState('theme', value, localOptions);
-                    }
-                }, parentOptions);
-                cleanups.push(watchParentCleanup);
-
-                // Add reset button handler
-                const resetButton = this.shadowRoot.querySelector('#resetTheme');
-                resetButton.addEventListener('click', () => this._resetToParent());
-                cleanups.push(() => resetButton.removeEventListener('click', () => this._resetToParent()));
-            }
-        }
-
-        // Bind theme toggle (always local)
-        const toggleCleanup = bindElement({
-            element: this.shadowRoot.querySelector('#themeToggle'),
-            stateKey: 'theme',
-            ...localOptions,
-            events: {
-                click: (_, value) => {
-                    this._localOverride = true;
-                    const newValue = value === 'light' ? 'dark' : 'light';
-                    console.log('Toggle clicked in', this.id || 'unnamed', 'changing to:', newValue);
-                    return newValue;
-                }
-            }
-        });
-        cleanups.push(toggleCleanup);
-
-        // Watch local state for display
-        const watchLocalCleanup = watch('theme', (value) => {
-            console.log('Watch update in', this.id || 'unnamed', 'value:', value);
-            this._updateDisplay(value);
-        }, localOptions);
-        cleanups.push(watchLocalCleanup);
-
-        // Update display with current state
-        this._updateDisplay(currentState);
-
-        // Store cleanups
-        this._cleanups = cleanups;
     }
 
     connectedCallback() {
-        this._updateStateBindings();
+        // Initialize with default theme
+        this._safeUpdate(() => {
+            setState('theme', 'light', { target: this._container });
+            this._container.dataset.state = 'light';
+        });
+        
+        // Watch for state changes with debounce
+        let updateTimeout;
+        bindElement({
+            element: this._container,
+            stateKey: 'theme',
+            target: this._container,
+            display: (_, value) => {
+                clearTimeout(updateTimeout);
+                updateTimeout = setTimeout(() => {
+                    this._handleStateChange(value);
+                }, 50); // Debounce updates
+            }
+        });
+
+        // Event handling
+        this.shadowRoot.addEventListener('click', this._handleClick.bind(this));
+    }
+
+    _handleStateChange(value) {
+        this._safeUpdate(() => {
+            // Clean and validate value
+            const cleanValue = (value || '').replace(/^"|"$/g, '').trim();
+            if (!['light', 'dark'].includes(cleanValue)) {
+                console.warn(`[${this._debugId}] Invalid theme value:`, cleanValue);
+                return;
+            }
+            
+            // Update UI
+            const themeValue = this.shadowRoot.querySelector('#themeValue');
+            themeValue.textContent = cleanValue;
+            this._container.dataset.state = cleanValue;
+            
+            // Log state change
+            console.log(`[${this._debugId}] State changed:`, {
+                value: cleanValue,
+                localOverride: this._localOverride
+            });
+        });
+    }
+
+    _handleClick(event) {
+        const button = event.target;
+        if (!['themeToggle', 'resetTheme'].includes(button.id)) return;
+
+        this._safeUpdate(() => {
+            if (button.id === 'themeToggle') {
+                this._localOverride = true;
+                const currentValue = getState('theme', { target: this._container });
+                const newValue = currentValue === 'light' ? 'dark' : 'light';
+                setState('theme', newValue, { target: this._container });
+            } else {
+                this._resetToParent();
+            }
+        });
+    }
+
+    _resetToParent() {
+        this._safeUpdate(() => {
+            const parentRoot = this._findParentStateRoot();
+            
+            // Reset to default if no parent
+            if (!parentRoot) {
+                this._localOverride = false;
+                setState('theme', 'light', { target: this._container });
+                return;
+            }
+            
+            // Get parent state
+            const parentState = getState('theme', { target: parentRoot });
+            if (!parentState) {
+                console.warn(`[${this._debugId}] No parent state found, using default`);
+                setState('theme', 'light', { target: this._container });
+                return;
+            }
+            
+            // Apply parent state
+            console.log(`[${this._debugId}] Resetting to parent state:`, parentState);
+            this._localOverride = false;
+            setState('theme', parentState, { target: this._container });
+        });
+    }
+
+    _findParentStateRoot() {
+        try {
+            // Start from this component's parent element
+            let parentElement = this.parentElement;
+            
+            // Traverse up through shadow roots and elements
+            while (parentElement) {
+                // If we're inside a theme-component's shadow root
+                if (parentElement.host instanceof ThemeComponent) {
+                    const container = parentElement.host.shadowRoot.querySelector('[data-state-scope]');
+                    if (container) {
+                        console.log(`[${this._debugId}] Found parent:`, {
+                            parentId: parentElement.host._debugId,
+                            parentState: getState('theme', { target: container })
+                        });
+                        return container;
+                    }
+                }
+                
+                // Check if current element is a theme-component
+                if (parentElement instanceof ThemeComponent) {
+                    const container = parentElement.shadowRoot.querySelector('[data-state-scope]');
+                    if (container) {
+                        console.log(`[${this._debugId}] Found parent:`, {
+                            parentId: parentElement._debugId,
+                            parentState: getState('theme', { target: container })
+                        });
+                        return container;
+                    }
+                }
+                
+                // Move up to next parent
+                parentElement = parentElement.parentNode;
+                if (parentElement instanceof ShadowRoot) {
+                    parentElement = parentElement.host;
+                }
+            }
+            
+            console.log(`[${this._debugId}] No parent found`);
+            return null;
+        } catch (error) {
+            console.error(`[${this._debugId}] Error finding parent:`, error);
+            return null;
+        }
     }
 
     disconnectedCallback() {
-        if (this._cleanups) {
-            this._cleanups.forEach(cleanup => cleanup());
-            this._cleanups = [];
-        }
+        this.shadowRoot.removeEventListener('click', this._handleClick.bind(this));
     }
 }
 

@@ -3,108 +3,161 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shadow DOM Demo</title>
+    <title>Shadow DOM State Demo</title>
     <link rel="stylesheet" href="styles/shadow-components.css">
+    <style>
+        .demo-container {
+            margin: 1rem 0;
+            padding: 1rem;
+            border: 1px solid #eee;
+        }
+        
+        /* Visual state boundaries */
+        [data-state-scope] {
+            border: 2px dashed #ccc;
+            margin: 0.5rem;
+            padding: 1rem;
+        }
+    </style>
 </head>
 <body>
-    <h1>Shadow DOM Components Demo</h1>
+    <h1>Shadow DOM State Management Demo</h1>
 
-    <!-- Default behavior: isolated state -->
+    <!-- Test 1: Physical State Isolation -->
     <section>
-        <h2>Isolated State (Default)</h2>
-        <p>These components don't share state - try toggling their themes independently:</p>
+        <h2>Physical State Boundaries</h2>
+        <p>Components maintain isolated state through physical DOM boundaries:</p>
         <div class="demo-container">
             <theme-component>
-                <div>Component 1 - Isolated State</div>
+                <div>Boundary 1 - Isolated State</div>
             </theme-component>
             <theme-component>
-                <div>Component 2 - Also Isolated</div>
+                <div>Boundary 2 - Also Isolated</div>
             </theme-component>
         </div>
     </section>
 
-    <!-- Cross-shadow inheritance -->
+    <!-- Test 2: CSS Cascade Inheritance -->
     <section>
-        <h2>Cross-Shadow Inheritance</h2>
-        <p>Child component inherits parent's theme state when cross-shadow is enabled:</p>
+        <h2>State Inheritance through CSS Cascade</h2>
+        <p>Child inherits state through natural CSS cascade:</p>
         <theme-component id="parent">
-            <div>Parent Component</div>
-            <theme-component id="child" cross-shadow>
-                <div>Child Component (inherits parent theme)</div>
+            <div>Parent State Boundary</div>
+            <theme-component id="child">
+                <div>Child Inherits through CSS</div>
             </theme-component>
         </theme-component>
     </section>
 
-    <!-- Deep inheritance -->
+    <!-- Test 3: Deep State Flow -->
     <section>
-        <h2>Deep Inheritance Chain</h2>
-        <p>Multiple levels of inheritance are possible:</p>
+        <h2>Natural State Flow</h2>
+        <p>State flows through DOM hierarchy:</p>
         <theme-component id="root">
-            <div>Root Component</div>
-            <theme-component cross-shadow>
-                <div>Level 1 (inherits from root)</div>
-                <theme-component cross-shadow>
-                    <div>Level 2 (inherits through chain)</div>
+            <div>Root State</div>
+            <theme-component>
+                <div>Level 1 State</div>
+                <theme-component>
+                    <div>Level 2 State</div>
                 </theme-component>
             </theme-component>
         </theme-component>
     </section>
 
-    <!-- Counter with theme inheritance -->
+    <!-- Test 4: Error Recovery -->
     <section>
-        <h2>Counter with Theme Inheritance</h2>
-        <p>Counter component inherits theme while maintaining its own state:</p>
-        <div class="demo-container">
-            <theme-component id="counterParent">
-                <div>Theme Parent</div>
-                <counter-component cross-shadow>
-                    Counter with parent theme
-                </counter-component>
-            </theme-component>
-        </div>
+        <h2>Error Recovery</h2>
+        <p>Components handle missing parents and invalid state:</p>
+        <theme-component id="orphan">
+            <div>Orphaned Component (no parent)</div>
+        </theme-component>
     </section>
 
-    <!-- Independent counters -->
-    <section>
-        <h2>Independent Counters</h2>
-        <p>Counters with isolated state and no theme inheritance:</p>
-        <div class="demo-container">
-            <counter-component>
-                Independent Counter 1
-            </counter-component>
-            <counter-component>
-                Independent Counter 2
-            </counter-component>
-        </div>
-    </section>
+    <script type="module">
+        import './components/theme-component.js';
+        
+        // Debounce helper
+        const debounce = (fn, ms = 100) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), ms);
+            };
+        };
 
-    <!-- Form with theme -->
-    <section>
-        <h2>Form with Theme</h2>
-        <p>Form component with validation and theme inheritance:</p>
-        <div class="demo-container">
-            <theme-component id="formParent">
-                <div>Theme Parent</div>
-                <form-component cross-shadow>
-                    Contact Form
-                </form-component>
-            </theme-component>
-        </div>
-    </section>
+        // Debug helpers
+        window.debugState = (selector = 'theme-component') => {
+            console.group('State Debug');
+            document.querySelectorAll(selector).forEach(component => {
+                const container = component.shadowRoot.querySelector('[data-state-scope]');
+                const debugId = container.dataset.debugId;
+                const styles = getComputedStyle(container);
+                console.log(`[${debugId}] State:`, {
+                    id: component.id || 'unnamed',
+                    localValue: container.style.getPropertyValue('--state-theme'),
+                    computedValue: styles.getPropertyValue('--state-theme'),
+                    override: container.dataset.override === 'true',
+                    parent: component.closest('theme-component')?._debugId
+                });
+            });
+            console.groupEnd();
+        };
 
-    <!-- Independent form -->
-    <section>
-        <h2>Independent Form</h2>
-        <p>Form without theme inheritance:</p>
-        <div class="demo-container">
-            <form-component>
-                Standalone Form
-            </form-component>
-        </div>
-    </section>
+        // Debug inheritance chain
+        window.debugInheritance = (startId) => {
+            const start = document.getElementById(startId);
+            if (!start) {
+                console.warn('Component not found:', startId);
+                return;
+            }
 
-    <script type="module" src="components/theme-component.js"></script>
-    <script type="module" src="components/counter-component.js"></script>
-    <script type="module" src="components/form-component.js"></script>
+            console.group(`Inheritance Chain for #${startId}`);
+            let current = start;
+            let depth = 0;
+            let seen = new Set(); // Prevent infinite loops
+            
+            while (current && !seen.has(current)) {
+                seen.add(current);
+                const container = current.shadowRoot.querySelector('[data-state-scope]');
+                console.log(''.padStart(depth * 2) + `[${current._debugId}]:`, {
+                    localValue: container.style.getPropertyValue('--state-theme'),
+                    computedValue: getComputedStyle(container).getPropertyValue('--state-theme'),
+                    override: container.dataset.override === 'true'
+                });
+                current = current.parentElement?.closest('theme-component');
+                depth++;
+            }
+            console.groupEnd();
+        };
+
+        // Debounced debug function
+        const debugParentChild = debounce(() => {
+            console.group('Parent-Child State Update');
+            debugInheritance('child');
+            console.groupEnd();
+        }, 250);
+
+        // Watch parent-child test case
+        const parent = document.getElementById('parent');
+        const child = document.getElementById('child');
+        
+        if (parent && child) {
+            // Only observe specific attribute changes
+            const observerOptions = {
+                attributes: true,
+                attributeFilter: ['data-state', 'data-override']
+            };
+            
+            new MutationObserver(debugParentChild).observe(
+                parent.shadowRoot.querySelector('[data-state-scope]'),
+                observerOptions
+            );
+            
+            new MutationObserver(debugParentChild).observe(
+                child.shadowRoot.querySelector('[data-state-scope]'),
+                observerOptions
+            );
+        }
+    </script>
 </body>
 </html>
