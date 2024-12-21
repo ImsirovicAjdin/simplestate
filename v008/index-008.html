@@ -15,6 +15,21 @@
         <button id="decrement">-</button>
     </div>
 
+    <!-- Inheritance Test -->
+    <div class="inheritance-test state-partition-theme">
+        <h2>State Inheritance Example</h2>
+        <div class="parent">
+            Parent Theme: <span id="parentTheme"></span>
+            <div class="child">
+                Child Theme: <span id="childTheme"></span>
+                <div class="grandchild">
+                    Grandchild Theme: <span id="grandchildTheme"></span>
+                </div>
+            </div>
+        </div>
+        <button id="toggleTheme">Toggle Theme</button>
+    </div>
+
     <!-- Name Inputs -->
     <div class="input state-partition-user">
         <h2>Computed State Example (Full name is computed from first and last name)</h2>
@@ -37,6 +52,7 @@
 
         // Get state containers
         const counterContainer = document.querySelector('.state-partition-counter');
+        const themeContainer = document.querySelector('.state-partition-theme');
         const userContainer = document.querySelector('.state-partition-user');
 
         // Set up counter display
@@ -75,6 +91,55 @@
                 }
             })
         );
+
+// Set up theme inheritance test
+setState('theme', 'light', { scope: 'theme', target: themeContainer });
+
+// Parent theme display
+trackCleanup(
+    bindElement({
+        element: document.getElementById('parentTheme'),
+        stateKey: 'theme',
+        scope: 'theme',
+        target: document.querySelector('.parent'),
+        display: (el, value) => el.textContent = value
+    })
+);
+
+// Child theme display (inherits from parent)
+trackCleanup(
+    bindElement({
+        element: document.getElementById('childTheme'),
+        stateKey: 'theme',
+        scope: 'theme',
+        target: document.querySelector('.child'),
+        display: (el, value) => el.textContent = value
+    })
+);
+
+// Grandchild theme display (inherits from parent)
+trackCleanup(
+    bindElement({
+        element: document.getElementById('grandchildTheme'),
+        stateKey: 'theme',
+        scope: 'theme',
+        target: document.querySelector('.grandchild'),
+        display: (el, value) => el.textContent = value
+    })
+);
+
+// Theme toggle button
+trackCleanup(
+    bindElement({
+        element: document.getElementById('toggleTheme'),
+        stateKey: 'theme',
+        scope: 'theme',
+        target: themeContainer,
+        events: {
+            click: (_, value) => value === 'light' ? 'dark' : 'light'
+        }
+    })
+);
 
         // Set up first name input
         trackCleanup(
