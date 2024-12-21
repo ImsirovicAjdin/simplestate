@@ -33,3 +33,70 @@ Potential powerful use cases:
 * Configuration cascading
 * Component state composition
 
+## Unexplored Synergies
+
+### CSS Custom Properties + Media Queries
+```css
+@media (prefers-color-scheme: dark) {
+    :root {
+        --state-theme: 'dark';
+    }
+}
+```
+- Automatic state changes based on media queries
+- Responsive state management
+- System preference integration
+
+### CSS Custom Properties + Container Queries
+```css
+@container sidebar (max-width: 200px) {
+    .widget {
+        --state-layout: 'compact';
+    }
+}
+```
+- Container-aware state
+- Automatic layout state management
+- Component-level responsiveness
+
+### CSS Custom Properties + CSS Nesting
+```css
+.app {
+    --state-theme: 'light';
+    
+    &[data-mode="dark"] {
+        --state-theme: 'dark';
+        
+        & .widget {
+            --state-contrast: 'high';
+        }
+    }
+}
+```
+- Nested state relationships
+- Cascading state rules
+- State inheritance patterns
+
+### CSS Custom Properties + CSS @layer
+```css
+@layer base {
+    :root {
+        --state-theme: 'light';
+    }
+}
+
+@layer theme {
+    :root {
+        --state-theme: 'dark';
+    }
+}
+```
+- State priority management
+- Cascading layer control
+- Plugin system architecture
+
+Each of these combinations opens up new possibilities while maintaining the core principle: leveraging native browser features rather than fighting against them.
+
+## An idea for a later release
+
+Implement a proof-of-concept for the media query integration. We can create a new module called mediaState.js that automatically syncs state with media queries.
