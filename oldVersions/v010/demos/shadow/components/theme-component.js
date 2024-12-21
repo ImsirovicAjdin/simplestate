@@ -1,4 +1,4 @@
-import { setState, getState, bindElement, watch } from '../../../core/SimpleState-v010.js';
+import { setState, getState, bindElement, watch } from '../../../core/SimpleState-v011.js';
 
 class ThemeComponent extends HTMLElement {
     constructor() {

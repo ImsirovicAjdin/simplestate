@@ -1,0 +1,122 @@
+* {
+    font-size: 20px;
+    font-family: sans-serif;
+}
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* State partitions */
+[class*="state-partition-"] {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    position: relative;
+}
+
+[class*="state-partition-"]::before {
+    content: attr(class);
+    position: absolute;
+    top: -0.75rem;
+    left: 1rem;
+    background: #fff;
+    padding: 0 0.5rem;
+    color: #666;
+    font-size: 0.8rem;
+}
+
+h2 {
+    margin-top: 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+button {
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    margin: 0 0.5rem;
+    cursor: pointer;
+}
+
+input {
+    font-size: 1rem;
+    padding: 0.5rem;
+    margin: 0.5rem;
+    width: 200px;
+}
+
+#counter {
+    font-size: 2rem;
+    margin: 1rem 0;
+}
+
+#fullNameDisplay {
+    font-size: 1.2rem;
+    margin: 1rem 0.5rem;
+    color: #666;
+    min-height: 1.5rem;
+}
+
+/* Inheritance test */
+.inheritance-test .parent,
+.inheritance-test .child,
+.inheritance-test .grandchild {
+    padding: 1rem;
+    margin: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] .parent {
+    background: #333;
+    color: #fff;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] .child {
+    background: #444;
+    color: #fff;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] .grandchild {
+    background: #555;
+    color: #fff;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"light\""] .parent {
+    background: #f8f8f8;
+    color: #000;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"light\""] .child {
+    background: #f0f0f0;
+    color: #000;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"light\""] .grandchild {
+    background: #e8e8e8;
+    color: #000;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] #parentTheme,
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] #childTheme,
+.state-partition-theme[style*="--state-theme-theme: \"dark\""] #grandchildTheme {
+    color: #66ccff;
+}
+
+.state-partition-theme[style*="--state-theme-theme: \"light\""] #parentTheme,
+.state-partition-theme[style*="--state-theme-theme: \"light\""] #childTheme,
+.state-partition-theme[style*="--state-theme-theme: \"light\""] #grandchildTheme {
+    color: #0066cc;
+}
+
+#parentTheme,
+#childTheme,
+#grandchildTheme {
+    font-weight: bold;
+}

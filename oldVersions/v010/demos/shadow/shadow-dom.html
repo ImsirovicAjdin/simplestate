@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow DOM State Demo</title>
+    <link rel="stylesheet" href="styles/shadow-components.css">
+    <style>
+        .demo-container {
+            margin: 1rem 0;
+            padding: 1rem;
+            border: 1px solid #eee;
+        }
+        
+        /* Visual state boundaries */
+        [data-state-scope] {
+            border: 2px dashed #ccc;
+            margin: 0.5rem;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Shadow DOM State Management Demo</h1>
+
+    <!-- Test 1: Physical State Isolation -->
+    <section>
+        <h2>Physical State Boundaries</h2>
+        <p>Components maintain isolated state through physical DOM boundaries:</p>
+        <div class="demo-container">
+            <theme-component>
+                <div>Boundary 1 - Isolated State</div>
+            </theme-component>
+            <theme-component>
+                <div>Boundary 2 - Also Isolated</div>
+            </theme-component>
+        </div>
+    </section>
+
+    <!-- Test 2: CSS Cascade Inheritance -->
+    <section>
+        <h2>State Inheritance through CSS Cascade</h2>
+        <p>Child inherits state through natural CSS cascade:</p>
+        <theme-component id="parent">
+            <div>Parent State Boundary</div>
+            <theme-component id="child">
+                <div>Child Inherits through CSS</div>
+            </theme-component>
+        </theme-component>
+    </section>
+
+    <!-- Test 3: Deep State Flow -->
+    <section>
+        <h2>Natural State Flow</h2>
+        <p>State flows through DOM hierarchy:</p>
+        <theme-component id="root">
+            <div>Root State</div>
+            <theme-component>
+                <div>Level 1 State</div>
+                <theme-component>
+                    <div>Level 2 State</div>
+                </theme-component>
+            </theme-component>
+        </theme-component>
+    </section>
+
+    <!-- Test 4: Error Recovery -->
+    <section>
+        <h2>Error Recovery</h2>
+        <p>Components handle missing parents and invalid state:</p>
+        <theme-component id="orphan">
+            <div>Orphaned Component (no parent)</div>
+        </theme-component>
+    </section>
+
+    <!-- Test 5: Component Integration -->
+    <section>
+        <h2>Component Integration</h2>
+        <p>Multiple components working together with shared theme state:</p>
+        <theme-component>
+            <div>Theme Provider</div>
+            <div class="demo-container">
+                <form-component cross-shadow>
+                    <h3>Contact Form</h3>
+                </form-component>
+                <counter-component cross-shadow>
+                    <h3>Counter Demo</h3>
+                </counter-component>
+            </div>
+        </theme-component>
+    </section>
+    <script type="module">
+    import './components/theme-component.js';
+    import './components/form-component.js';
+    import './components/counter-component.js';
+        
+        // Debounce helper
+        const debounce = (fn, ms = 100) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), ms);
+            };
+        };
+
+        // Debug helpers
+        window.debugState = (selector = 'theme-component') => {
+            console.group('State Debug');
+            document.querySelectorAll(selector).forEach(component => {
+                const container = component.shadowRoot.querySelector('[data-state-scope]');
+                const debugId = container.dataset.debugId;
+                const styles = getComputedStyle(container);
+                console.log(`[${debugId}] State:`, {
+                    id: component.id || 'unnamed',
+                    localValue: container.style.getPropertyValue('--state-theme'),
+                    computedValue: styles.getPropertyValue('--state-theme'),
+                    override: container.dataset.override === 'true',
+                    parent: component.closest('theme-component')?._debugId
+                });
+            });
+            console.groupEnd();
+        };
+
+        // Debug inheritance chain
+        window.debugInheritance = (startId) => {
+            const start = document.getElementById(startId);
+            if (!start) {
+                console.warn('Component not found:', startId);
+                return;
+            }
+
+            console.group(`Inheritance Chain for #${startId}`);
+            let current = start;
+            let depth = 0;
+            let seen = new Set(); // Prevent infinite loops
+            
+            while (current && !seen.has(current)) {
+                seen.add(current);
+                const container = current.shadowRoot.querySelector('[data-state-scope]');
+                console.log(''.padStart(depth * 2) + `[${current._debugId}]:`, {
+                    localValue: container.style.getPropertyValue('--state-theme'),
+                    computedValue: getComputedStyle(container).getPropertyValue('--state-theme'),
+                    override: container.dataset.override === 'true'
+                });
+                current = current.parentElement?.closest('theme-component');
+                depth++;
+            }
+            console.groupEnd();
+        };
+
+        // Debounced debug function
+        const debugParentChild = debounce(() => {
+            console.group('Parent-Child State Update');
+            debugInheritance('child');
+            console.groupEnd();
+        }, 250);
+
+        // Watch parent-child test case
+        const parent = document.getElementById('parent');
+        const child = document.getElementById('child');
+        
+        if (parent && child) {
+            // Only observe specific attribute changes
+            const observerOptions = {
+                attributes: true,
+                attributeFilter: ['data-state', 'data-override']
+            };
+            
+            new MutationObserver(debugParentChild).observe(
+                parent.shadowRoot.querySelector('[data-state-scope]'),
+                observerOptions
+            );
+            
+            new MutationObserver(debugParentChild).observe(
+                child.shadowRoot.querySelector('[data-state-scope]'),
+                observerOptions
+            );
+        }
+    </script>
+</body>
+</html>

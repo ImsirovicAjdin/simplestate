@@ -1,0 +1,42 @@
+<!-- demos/basic/_001-counter.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SimpleState Counter Demo</title>
+</head>
+<body>
+    <div id="counter">
+        <button class="decrement">-</button>
+        <span class="value">0</span>
+        <button class="increment">+</button>
+    </div>
+
+    <script type="module">
+        import { setState, getState } from '../../core/index.js';
+
+        const counter = document.getElementById('counter');
+        const value = counter.querySelector('.value');
+
+        // Initialize state
+        setState('count', 0, { target: counter });
+
+        // Update display when state changes
+        counter.addEventListener('click', (e) => {
+            if (e.target.matches('.increment')) {
+                const current = Number(getState('count', { target: counter }));
+                setState('count', current + 1, { target: counter });
+            }
+            if (e.target.matches('.decrement')) {
+                const current = Number(getState('count', { target: counter }));
+                setState('count', current - 1, { target: counter });
+            }
+        });
+
+        // Display updates
+        const observer = new MutationObserver(() => {
+            value.textContent = getState('count', { target: counter });
+        });
+        observer.observe(counter, { attributes: true });
+    </script>
+</body>
+</html>

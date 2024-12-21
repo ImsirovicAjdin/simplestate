@@ -1,4 +1,4 @@
-import { setState, getState, watch } from '../../../core/SimpleState-v010.js';
+import { setState, getState, watch } from '../../../core/SimpleState-v011.js';
 
 class CounterComponent extends HTMLElement {
     constructor() {

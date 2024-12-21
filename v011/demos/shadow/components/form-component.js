@@ -1,5 +1,5 @@
 // demos/shadow/components/form-component.js
-import { setState, getState, watch } from '../../../core/SimpleState-v010.js';
+import { setState, getState, watch } from '../../../core/index.js';
 
 class FormComponent extends HTMLElement {
     constructor() {
