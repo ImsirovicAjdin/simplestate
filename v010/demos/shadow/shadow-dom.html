@@ -73,8 +73,26 @@
         </theme-component>
     </section>
 
+    <!-- Test 5: Component Integration -->
+    <section>
+        <h2>Component Integration</h2>
+        <p>Multiple components working together with shared theme state:</p>
+        <theme-component>
+            <div>Theme Provider</div>
+            <div class="demo-container">
+                <form-component cross-shadow>
+                    <h3>Contact Form</h3>
+                </form-component>
+                <counter-component cross-shadow>
+                    <h3>Counter Demo</h3>
+                </counter-component>
+            </div>
+        </theme-component>
+    </section>
     <script type="module">
-        import './components/theme-component.js';
+    import './components/theme-component.js';
+    import './components/form-component.js';
+    import './components/counter-component.js';
         
         // Debounce helper
         const debounce = (fn, ms = 100) => {
