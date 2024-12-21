@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple State v0.0.8</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <!-- Counter Component -->
+    <div class="counter state-partition-counter">
+        <h2>Persistence Example (Counter value stays the same after refresh)</h2>
+        <div id="counter"></div>
+        <button id="increment">+</button>
+        <button id="decrement">-</button>
+    </div>
+
+    <!-- Name Inputs -->
+    <div class="input state-partition-user">
+        <h2>Computed State Example (Full name is computed from first and last name)</h2>
+        <input id="firstNameInput" type="text" placeholder="Enter name">
+        <input id="lastNameInput" type="text" placeholder="Enter last name">
+        <div id="fullNameDisplay"></div>
+    </div>
+
+    <script type="module">
+        import { setState, bindElement, persistState, computeState } from './SimpleState-v008.js';
+
+        // Track cleanups
+        const cleanups = new Set();
+
+        // Helper to track cleanup functions
+        const trackCleanup = (cleanup) => {
+            cleanups.add(cleanup);
+            return cleanup;
+        };
+
+        // Get state containers
+        const counterContainer = document.querySelector('.state-partition-counter');
+        const userContainer = document.querySelector('.state-partition-user');
+
+        // Set up counter display
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('counter'),
+                stateKey: 'value',
+                scope: 'counter',
+                target: counterContainer,
+                display: (el, value) => el.textContent = value
+            })
+        );
+
+        // Set up increment button
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('increment'),
+                stateKey: 'value',
+                scope: 'counter',
+                target: counterContainer,
+                events: {
+                    click: (_, value = 0) => value + 1
+                }
+            })
+        );
+
+        // Set up decrement button
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('decrement'),
+                stateKey: 'value',
+                scope: 'counter',
+                target: counterContainer,
+                events: {
+                    click: (_, value = 0) => value - 1
+                }
+            })
+        );
+
+        // Set up first name input
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('firstNameInput'),
+                stateKey: 'firstName',
+                scope: 'user',
+                target: userContainer,
+                events: {
+                    input: (e) => e.target.value
+                },
+                display: (el, value) => el.value = value || ''
+            })
+        );
+
+        // Set up last name input
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('lastNameInput'),
+                stateKey: 'lastName',
+                scope: 'user',
+                target: userContainer,
+                events: {
+                    input: (e) => e.target.value
+                },
+                display: (el, value) => el.value = value || ''
+            })
+        );
+
+        // Set up full name display
+        trackCleanup(
+            bindElement({
+                element: document.getElementById('fullNameDisplay'),
+                stateKey: 'fullName',
+                scope: 'user',
+                target: userContainer,
+                display: (el, value) => el.textContent = value || ''
+            })
+        );
+
+        // Initialize states
+        setState('value', 0, { scope: 'counter', target: counterContainer });
+        setState('firstName', '', { scope: 'user', target: userContainer });
+        setState('lastName', '', { scope: 'user', target: userContainer });
+
+        // Set up computed state
+        trackCleanup(
+            computeState(
+                'fullName',
+                ['firstName', 'lastName'],
+                (first, last) => `${first || ''} ${last || ''}`.trim(),
+                { scope: 'user', target: userContainer }
+            )
+        );
+
+        // Set up persistence
+        trackCleanup(persistState('value', { 
+            scope: 'counter', 
+            target: counterContainer 
+        }));
+
+        // Clean up before page unloads
+        window.addEventListener('beforeunload', (event) => {
+            cleanups.forEach(cleanup => {
+                try {
+                    cleanup();
+                } catch (error) {
+                    console.error('Cleanup error:', error);
+                }
+            });
+            cleanups.clear();
+        });
+    </script>
+</body>
+</html>
