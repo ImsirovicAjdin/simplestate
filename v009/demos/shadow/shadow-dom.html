@@ -3,9 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shadow DOM demo, v0.0.9</title>
+    <title>Shadow DOM Demo</title>
+    <link rel="stylesheet" href="styles/shadow-components.css">
 </head>
 <body>
-    
+    <h1>Shadow DOM Components Demo</h1>
+
+    <!-- Default behavior: isolated state -->
+    <section>
+        <h2>Isolated State (Default)</h2>
+        <p>These components don't share state - try toggling their themes independently:</p>
+        <div class="demo-container">
+            <theme-component>
+                <div>Component 1 - Isolated State</div>
+            </theme-component>
+            <theme-component>
+                <div>Component 2 - Also Isolated</div>
+            </theme-component>
+        </div>
+    </section>
+
+    <!-- Cross-shadow inheritance -->
+    <section>
+        <h2>Cross-Shadow Inheritance</h2>
+        <p>Child component inherits parent's theme state when cross-shadow is enabled:</p>
+        <theme-component id="parent">
+            <div>Parent Component</div>
+            <theme-component id="child" cross-shadow>
+                <div>Child Component (inherits parent theme)</div>
+            </theme-component>
+        </theme-component>
+    </section>
+
+    <!-- Deep inheritance -->
+    <section>
+        <h2>Deep Inheritance Chain</h2>
+        <p>Multiple levels of inheritance are possible:</p>
+        <theme-component id="root">
+            <div>Root Component</div>
+            <theme-component cross-shadow>
+                <div>Level 1 (inherits from root)</div>
+                <theme-component cross-shadow>
+                    <div>Level 2 (inherits through chain)</div>
+                </theme-component>
+            </theme-component>
+        </theme-component>
+    </section>
+
+    <!-- Counter with theme inheritance -->
+    <section>
+        <h2>Counter with Theme Inheritance</h2>
+        <p>Counter component inherits theme while maintaining its own state:</p>
+        <div class="demo-container">
+            <theme-component id="counterParent">
+                <div>Theme Parent</div>
+                <counter-component cross-shadow>
+                    Counter with parent theme
+                </counter-component>
+            </theme-component>
+        </div>
+    </section>
+
+    <!-- Independent counters -->
+    <section>
+        <h2>Independent Counters</h2>
+        <p>Counters with isolated state and no theme inheritance:</p>
+        <div class="demo-container">
+            <counter-component>
+                Independent Counter 1
+            </counter-component>
+            <counter-component>
+                Independent Counter 2
+            </counter-component>
+        </div>
+    </section>
+
+    <!-- Form with theme -->
+    <section>
+        <h2>Form with Theme</h2>
+        <p>Form component with validation and theme inheritance:</p>
+        <div class="demo-container">
+            <theme-component id="formParent">
+                <div>Theme Parent</div>
+                <form-component cross-shadow>
+                    Contact Form
+                </form-component>
+            </theme-component>
+        </div>
+    </section>
+
+    <!-- Independent form -->
+    <section>
+        <h2>Independent Form</h2>
+        <p>Form without theme inheritance:</p>
+        <div class="demo-container">
+            <form-component>
+                Standalone Form
+            </form-component>
+        </div>
+    </section>
+
+    <script type="module" src="components/theme-component.js"></script>
+    <script type="module" src="components/counter-component.js"></script>
+    <script type="module" src="components/form-component.js"></script>
 </body>
 </html>
