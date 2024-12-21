@@ -1,0 +1,1 @@
+// demos/shadow/components/counter-component.js
