@@ -13,15 +13,15 @@ export const computeState = (key, dependencies, compute, options = {}) => {
         if (updateScheduled) return;
         updateScheduled = true;
         
-        // Schedule update for next tick
-        setTimeout(() => {
-            // Get values using the same scope
+        // Schedule update before next repaint
+        requestAnimationFrame(() => {
+            // Compute new value from current dependency states
             const values = dependencies.map(d => 
                 getState(d, stateOptions)
             );
             setState(key, compute(...values), stateOptions);
             updateScheduled = false;
-        }, 0);
+        });
     };
 
     // Update computed value whenever dependencies change

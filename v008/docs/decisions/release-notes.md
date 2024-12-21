@@ -1,10 +1,89 @@
-<!-- ./docs/decisions/release-notes.md -->
+# Version 0.0.8 Release Notes
 
-# Observations
+## Major Features: State Inheritance & Demo Components
+
+This release validates the framework's DOM-based state inheritance approach through three comprehensive demo components:
+
+### 1. Theme Inheritance Demo
+- Implemented parent/child/grandchild state inheritance
+- Demonstrated automatic state propagation through DOM hierarchy
+- Added visual feedback through CSS custom properties
+- Implemented smooth theme transitions
+- Real-time theme value display in UI
+
+### 2. Counter with Persistence
+- Demonstrated state persistence across page refreshes
+- Implemented increment/decrement operations
+- Showed clean integration with DOM updates
+- Validated state scoping with partition containers
+
+### 3. Computed State Example
+- Implemented real-time computed state from multiple inputs
+- Demonstrated first/last name synchronization
+- Showed clean handling of derived state
+- Validated state dependencies management
+
+## Technical Achievements
+
+1. **Zero-Cost Inheritance**
+   - Leveraged CSS cascade for state propagation
+   - No runtime overhead for inheritance
+   - Automatic cleanup through DOM
+
+2. **CSS Integration**
+   - Seamless theme switching through custom properties
+   - Smooth transitions between states
+   - Native browser optimization
+
+3. **State Partitioning**
+   - Clean separation between component states
+   - Scoped updates for better performance
+   - Isolated state management
+
+### Size & Performance
+- Maintained minimal footprint (~2-3KB minified)
+- Zero external dependencies
+- Leveraged native browser features
+
+## Future Directions
+- Shadow DOM integration potential
+- State machine patterns
+- Cross-component orchestration
+- Performance optimizations
+
+
+## Codebase Overview
+
+### Core State Management
+- `setState.js` - Core state setting with scope control
+- `getState.js` - State retrieval with inheritance logic
+- `watch.js` - Efficient MutationObserver-based state watching
+
+### Higher-Level Features
+- `bindElement.js` - Clean DOM binding with automatic cleanup
+- `computeState.js` - Computed values with rAF optimization
+- `persistState.js` - Local storage integration
+
+### Entry Point
+- `SimpleState-v008.js` - Clean exports with no unused modules
+
+### Demo Implementation
+- `index-008.html` - Well-structured examples with proper cleanup
+- `style.css` - Efficient CSS with clear state partition styling
+
+### Documentation
+- `README.md` - Clear project overview and legal notices
+- `LICENSE.md` - Proper legal protection
+- `release-notes.md` - Comprehensive feature documentation
+- `brainstorming.md` - Future considerations and technical analysis
+
+# Version 0.0.7 Release Notes
+
+## Observations
 
 The v0.0.7 library size is quite impressive for what it accomplishes! Let's analyze:
 
-## Core Files (unminified):
+### Core Files (unminified):
 
 * `setState.js`: ~21 lines
 * `getState.js`: ~26 lines
@@ -16,14 +95,14 @@ The v0.0.7 library size is quite impressive for what it accomplishes! Let's anal
 
 Total: ~174 lines of unminified code
 
-## Key Points:
+### Key Points:
 
 1. Minimal Surface Area: Each module has a single, focused responsibility
 2. No Dependencies: Pure vanilla JS, using built-in browser APIs
 3. Modern JS: Using ES modules, destructuring, arrow functions
 4. Efficient Code: No redundancy, clean implementations
 
-## Size Comparison (approximate after minification):
+### Size Comparison (approximate after minification):
 
 * This lib: Would be ~2-3KB minified
 * React: ~40KB minified
@@ -42,18 +121,18 @@ This library is extremely lightweight while providing:
 
 This is a great size-to-feature ratio, especially considering it's using CSS custom properties for state, which means you're leveraging the browser's native capabilities instead of reinventing them.
 
-## Framework Comparison
+### Framework Comparison
 
 I started this library because I wanted to experiment with state management, so I guess my framework has grown out of scope of purely a state engine? Since the paradigm is novel, maybe that's the expected and correct approach?
 
-## Redux (~6KB minified)
+### Redux (~6KB minified)
 
 * Pure state management
 * Follows strict unidirectional data flow
 * Requires additional libraries for DOM binding (react-redux)
 * No built-in persistence or computed values
 
-## This Library / Framework
+### SimpleState.js
 
 * State management using CSS custom properties
 * Direct DOM binding and updates
@@ -144,55 +223,3 @@ This is actually a strength, not scope creep. The novel paradigm I'm using (CSS 
 
 The success of this approach suggests we might need to rethink how we approach front-end state management. Instead of fighting against or reimplementing browser features, we should look for ways to leverage existing platform capabilities in novel ways.
 
-# Version 0.0.8 Release Notes
-
-## Major Features: State Inheritance & Demo Components
-
-This release validates the framework's DOM-based state inheritance approach through three comprehensive demo components:
-
-### 1. Theme Inheritance Demo
-- Implemented parent/child/grandchild state inheritance
-- Demonstrated automatic state propagation through DOM hierarchy
-- Added visual feedback through CSS custom properties
-- Implemented smooth theme transitions
-- Real-time theme value display in UI
-
-### 2. Counter with Persistence
-- Demonstrated state persistence across page refreshes
-- Implemented increment/decrement operations
-- Showed clean integration with DOM updates
-- Validated state scoping with partition containers
-
-### 3. Computed State Example
-- Implemented real-time computed state from multiple inputs
-- Demonstrated first/last name synchronization
-- Showed clean handling of derived state
-- Validated state dependencies management
-
-## Technical Achievements
-
-1. **Zero-Cost Inheritance**
-   - Leveraged CSS cascade for state propagation
-   - No runtime overhead for inheritance
-   - Automatic cleanup through DOM
-
-2. **CSS Integration**
-   - Seamless theme switching through custom properties
-   - Smooth transitions between states
-   - Native browser optimization
-
-3. **State Partitioning**
-   - Clean separation between component states
-   - Scoped updates for better performance
-   - Isolated state management
-
-## Size & Performance
-- Maintained minimal footprint (~2-3KB minified)
-- Zero external dependencies
-- Leveraged native browser features
-
-## Future Directions
-- Shadow DOM integration potential
-- State machine patterns
-- Cross-component orchestration
-- Performance optimizations
